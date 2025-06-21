@@ -89,43 +89,34 @@ class TodoController extends Controller
     // Fungsi untuk mengekspor Todo ke Excel
     public function export(Request $request)
     {
-        // Mengambil query parameter untuk filtering
         $query = Todo::query();
 
-        // Filter berdasarkan title
         if ($request->filled('title')) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
 
-        // Filter berdasarkan assignee
         if ($request->filled('assignee')) {
             $query->whereIn('assignee', explode(',', $request->assignee));
         }
 
-        // Filter berdasarkan range due_date
         if ($request->filled('start') && $request->filled('end')) {
             $query->whereBetween('due_date', [$request->start, $request->end]);
         }
 
-        // Filter berdasarkan range time_tracked
         if ($request->filled('min') && $request->filled('max')) {
             $query->whereBetween('time_tracked', [$request->min, $request->max]);
         }
 
-        // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->whereIn('status', explode(',', $request->status));
         }
 
-        // Filter berdasarkan priority
         if ($request->filled('priority')) {
             $query->whereIn('priority', explode(',', $request->priority));
         }
 
-        // Ambil data yang sudah difilter
         $filtered = $query->get();
 
-        // Menggunakan Laravel Excel untuk mengekspor data ke file Excel
         return Excel::download(new TodoExport($filtered), 'todos.xlsx');
     }
 
